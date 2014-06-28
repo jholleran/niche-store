@@ -1,0 +1,65 @@
+extends layout
+
+block content
+
+  if products.length == 0
+    .alert.alert-warning
+      | Database query returned no results.
+  else
+    table.table
+      tbody
+        for product in products
+          tr
+            td.span2
+              // product thumbnail
+              a(href='/products/#{product.slug}')
+                img.img-polaroid.small-img(src='/img/products/#{product.largeImage}')
+            td
+              // product title
+              a(href='/products/#{product.slug}')
+                strong #{product.title}
+
+              if user.userName
+                // buy button - user already purchased the product
+                - purchaseFlag = false
+                if user.purchasedproducts && user.purchasedproducts.length > 0
+                  for purchased in user.purchasedproducts
+                    if purchased.product.slug == product.slug
+                      button.btn.btn-primary.btn-mini
+                        i.icon-shopping-cart.icon-white
+                        span  Purchased
+                        - purchaseFlag = true
+                // buy button - user hasn't purchased the product
+                if !purchaseFlag
+                  button.btn.btn-primary.btn-mini(id='buy-#{product.slug}', data-product-title=product.title, class='buy', role='button', data-toggle='modal')
+                    i.icon-shopping-cart.icon-white
+                    =  product.price
+
+              div
+                // check if user has already voted for this product
+                - voted = 'No'
+                if user.userName && product.votedPeople.length > 0
+                  for voter in product.votedPeople
+                    if voter == user.userName
+                      - voted = 'Yes'
+
+                // check if user is suspended
+                - suspended = 'No'
+                if user.userName
+                  if user.suspendedRating
+                    - suspended = 'Yes'
+
+                // product rating
+                - ratingAvg = Math.ceil(product.rating/product.votes * 100) / 100 || 0
+                span(class='stars', id='rating-#{product.slug}', data-rating=ratingAvg, data-user=user.userName, data-voted=voted, data-suspended=suspended)
+                span  #{ratingAvg} (#{product.votes} votes)
+
+              // product information
+              div
+                small.muted
+                  div #{product.releaseDate} | #{product.publisher}
+                  div #{product.genre}
+
+              // product description
+              p #{product.description}
+  include buy
