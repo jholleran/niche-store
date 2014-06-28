@@ -29,4 +29,14 @@ router.get('/products', function(req, res) {
   });
 });
 
+
+router.get('/add', function(req, res) {
+
+  res.render('add', { 
+  	title: 'Add Product to Store',
+  	heading: 'Add Product',
+    lead: 'Enter add the information about the product'
+  });
+});
+
 module.exports = router;
