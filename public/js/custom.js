@@ -177,11 +177,11 @@ $(function () {
   $.each($('.buy'), function () {
 
     var id = $(this).attr('id');
-    var title = $(this).attr('data-game-title');
+    var title = $(this).attr('data-product-title');
     var slug = id.replace('buy-', '');
 
     $('#' + id).click(function () {
-      $('#game-title').text(title);
+      $('#product-title').text(title);
       $('#modal').modal('show');
       $('#buy-confirm').click(function () {
         humane.log('Your order has been submitted!');
