@@ -1,12 +1,26 @@
+////////////////
+// dependices
 var express = require('express');
 var router = express.Router();
 var debug = require('debug')('niche-store');
+var mongoose = require('mongoose');
 
-    var products = [
-      {slug : "ptz-ip-cam-1", title : "PTZ IP Camera 1", description : "Network IP Camera with Pan, Tilt & Zoom.", price : "$55.50", image : "IP-PTZ-CAM-1.jpg", catagory : "ip camera" },
-      {slug : "ptz-ip-cam-2", title : "PTZ IP Camera 2", description : "Pan, Tilt & Zoom IP Camera with dual ....", price : "$82", image : "IP-PTZ-CAM-2.jpg", catagory : "ip camera" },
-      {slug : "ptz-ip-cam-3", title : "PTZ IP Camera 3", description : "High Quality Network IP Camera with Pan, Tilt & Zoom.", price : "$105", image : "IP-PTZ-CAM-3.jpg", catagory : "ip camera" }
-    ];
+var productSchema = new mongoose.Schema({
+  slug: { type: String, unique: true },
+  title: String,
+  description: String,
+  price: Number,
+  image: String,
+  catagory: [String]
+});    
+
+
+var Product = mongoose.model('Product', productSchema);
+
+debug("Connecting to database...");
+mongoose.connect('localhost');
+debug("Connected to database.");
+
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -18,13 +32,21 @@ router.get('/', function(req, res) {
 });
 
 
-router.get('/products', function(req, res) {
+router.get('/products', function(req, res, next) {
 
-  res.render('products', { 
-  	title: 'Online Products Store',
-  	heading: 'IP Cameras',
-    lead: 'Product titles listed by popularity rating',
-    products: products
+  Product.find().exec(function (err, products) {
+    if(err) {
+      debug('Unable to read the products from the database: ', err.stack);
+      next(err);
+    } else {    
+      debug('Found All Products: %j', products);
+      res.render('products', { 
+        title: 'Online Products Store',
+        heading: 'IP Cameras',
+        lead: 'Product titles listed by popularity rating',
+        products: products
+      });
+    }
   });
 });
 
@@ -38,11 +60,18 @@ router.get('/add', function(req, res) {
   });
 });
 
-router.post('/add', function(req, res) {
+router.post('/add', function(req, res, next) {
 
-  debug('Adding Product ' + req.body);
-  products.push(req.body);
-  res.redirect('/products');
+  debug('Adding Product %j', req.body);
+  var product = new Product(req.body);
+  product.save(function (err) {
+    if (err) {
+      debug('Unable to add the game to database: ', err.stack);
+      next(err);
+    } else {
+      res.redirect('/products');
+    }
+  });
 });
 
 module.exports = router;
