@@ -91,4 +91,45 @@ router.post('/add', function(req, res, next) {
 });
 
 
+
+/**
+ * Register Routes
+ */
+router.get('/register', function(req, res) {
+  'use strict';
+  /*
+  if (req.session.user) {
+    res.redirect('/');
+  }
+  */
+
+  res.render('register', {
+    heading: 'Create Account',
+    lead: 'Register with us to get your own personalized profile',
+  });
+});
+
+
+
+
+/**
+ * GET /login
+ */
+router.get('/login', function(req, res) {
+  'use strict';
+  /*
+  if (req.session.user) {
+    res.redirect('/');
+  }
+  */
+
+  res.render('login', {
+    heading: 'Sign In',
+    lead: 'Use the login form if you are an existing user',
+   // user: req.session.user,
+    //incorrectLogin: req.session.incorrectLogin,
+    //message: { success: req.session.message }
+  });
+});
+
 module.exports = router;
