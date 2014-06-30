@@ -3,6 +3,7 @@ var path = require('path');
 var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var bodyParser = require('body-parser');
 var debug = require('debug')('niche-store');
 
@@ -24,6 +25,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Server-side Authentication
+app.use(session({ secret: 'keyboard cat' }));
 
 app.use('/', routes);
 app.use('/users', users);
@@ -62,4 +66,7 @@ app.use(function(err, req, res, next) {
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
+
+
+
 

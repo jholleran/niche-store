@@ -5,6 +5,10 @@ var router = express.Router();
 var debug = require('debug')('niche-store');
 var mongoose = require('mongoose');
 
+
+var bcrypt = require('bcrypt');
+
+
 var productSchema = new mongoose.Schema({
   slug: { type: String, unique: true },
   title: String,
@@ -92,16 +96,86 @@ router.post('/add', function(req, res, next) {
 
 
 
+
+
+
+
+// In Mongoose everything is derived from Schema.
+// Here we create a schema called User with the following fields.
+// Each field requires a type and optional additional properties, e.g. unique field? required field?
+var UserSchema = new mongoose.Schema({
+  email: { type: String, required: true, index: { unique: true }},
+  password: { type: String, required: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  joined_on: { type: Date, default: Date.now() },
+  isAdmin: Boolean,
+  purchasedProducts: [{
+    game: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    date: { type: Date, default: Date.now() }
+  }],
+  viewedProducts: [String],
+  lastLogin: Boolean
+});
+
+
+// Express middleware that hashes a password before it is saved to database
+// The following function is invoked right when we called MongoDB save() method
+// We can define middleware once and it will work everywhere that we use save() to save data to MongoDB
+// The purpose of this middleware is to hash the password before saving to database, because
+// we don't want to save password as plain text for security reasons
+UserSchema.pre('save', function (next) {
+  'use strict';
+  var user = this;
+
+  // only hash the password if it has been modified (or is new)
+  if (!user.isModified('password')) {
+    return next();
+  }
+
+  // generate a salt with 10 rounds
+  bcrypt.genSalt(10, function (err, salt) {
+    if (err) {
+      return next(err);
+    }
+
+    // hash the password along with our new salt
+    bcrypt.hash(user.password, salt, function(err, hash) {
+      if (err) {
+        return next(err);
+      }
+
+      // override the cleartext password with the hashed one
+      user.password = hash;
+      next();
+    });
+  });
+});
+
+// This middleware compares user's typed-in password during login with the password stored in database
+UserSchema.methods.comparePassword = function(candidatePassword, callback) {
+  'use strict';
+  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, isMatch);
+  });
+};
+
+// User model based on schema
+var User = mongoose.model('User', UserSchema);
+
 /**
  * Register Routes
  */
 router.get('/register', function(req, res) {
   'use strict';
-  /*
+
   if (req.session.user) {
     res.redirect('/');
   }
-  */
+  
 
   res.render('register', {
     heading: 'Create Account',
@@ -110,6 +184,34 @@ router.get('/register', function(req, res) {
 });
 
 
+/**
+ * POST /register
+ */
+router.post('/register', function(req, res, next) {
+  'use strict';
+
+  var firstName = req.body.firstName;
+  var lastName = req.body.lastName;
+  var email = req.body.userEmail;
+  var password = req.body.password;
+
+  var user = new User({
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    password: password,
+    admin: false
+  });
+
+  user.save(function (err) {
+    if (err) {
+      debug('Unable to save user to the database: ', err.stack);
+      next(err);
+    }
+    req.session.user = user;
+    res.redirect('/');
+  });
+});
 
 
 /**
