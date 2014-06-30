@@ -8,4 +8,11 @@ install dependencies:
   $ cd niche-store && npm install
   
 run the app:
-  $ DEBUG=niche-store ./bin/wwww
+  $ ./bin/www
+
+
+development setup
+
+node
+nodemon
+mongodb
