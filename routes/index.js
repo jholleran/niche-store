@@ -31,7 +31,8 @@ router.get('/', function(req, res) {
   res.render('index', { 
   	title: 'Online Product Store',
   	heading: 'Niche Site Online Store',
-    lead: 'The leading next generation Niche Test site and recommendation engine'
+    lead: 'The leading next generation Niche Test site and recommendation engine',
+    user: req.session.user
   });
 });
 
