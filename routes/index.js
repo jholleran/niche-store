@@ -5,7 +5,6 @@ var router = express.Router();
 var debug = require('debug')('niche-store');
 var mongoose = require('mongoose');
 
-
 var bcrypt = require('bcrypt');
 
 
@@ -265,5 +264,20 @@ router.post('/login', function (req, res) {
   });
 });
 
+
+/**
+ * GET /logout
+ */
+router.get('/logout', function (req, res) {
+  'use strict';
+
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+
+  req.session.destroy(function () {
+    res.redirect('/');
+  });
+});
 
 module.exports = router;
