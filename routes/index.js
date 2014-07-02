@@ -219,19 +219,50 @@ router.post('/register', function(req, res, next) {
  */
 router.get('/login', function(req, res) {
   'use strict';
-  /*
   if (req.session.user) {
     res.redirect('/');
   }
-  */
+  
 
   res.render('login', {
     heading: 'Sign In',
     lead: 'Use the login form if you are an existing user',
-   // user: req.session.user,
-    //incorrectLogin: req.session.incorrectLogin,
-    //message: { success: req.session.message }
+    user: req.session.user,
+    incorrectLogin: req.session.incorrectLogin,
+    message: { success: req.session.message }
   });
 });
+
+/**
+ * POST /login
+ */
+router.post('/login', function (req, res) {
+ 'use strict';
+  User.findOne({ 'email': req.body.userEmail }, function (err, user) {
+    if (err) {
+      res.send(500, err);
+    }
+
+    if (!user) {
+      req.session.incorrectLogin = true;
+      res.redirect('/login');
+    } else {
+      user.comparePassword(req.body.password, function(err, isMatch) {
+        if (err) {
+          res.send(500, err);
+        }
+        if (!isMatch) {
+          req.session.incorrectLogin = true;
+          res.redirect('/login');
+        } else {
+          delete req.session.incorrectLogin;
+          req.session.user = user;
+          res.redirect('/');
+        }
+      });
+    }
+  });
+});
+
 
 module.exports = router;
