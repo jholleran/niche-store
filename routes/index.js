@@ -3,26 +3,8 @@
 var express = require('express');
 var router = express.Router();
 var debug = require('debug')('niche-store');
-var mongoose = require('mongoose');
-
 var bcrypt = require('bcrypt');
-
-
-var productSchema = new mongoose.Schema({
-  slug: { type: String, unique: true },
-  title: String,
-  description: String,
-  price: Number,
-  image: String,
-  catagory: [String]
-});    
-
-
-var Product = mongoose.model('Product', productSchema);
-
-debug("Connecting to database...");
-mongoose.connect('localhost');
-debug("Connected to database.");
+var db = require('../db');
 
 
 /* GET home page. */
@@ -38,7 +20,7 @@ router.get('/', function(req, res) {
 
 router.get('/products', function(req, res, next) {
 
-  Product.find().exec(function (err, products) {
+  db.Product.find().exec(function (err, products) {
     if(err) {
       debug('Unable to read the products from the database: ', err.stack);
       next(err);
@@ -56,14 +38,14 @@ router.get('/products', function(req, res, next) {
 
 
 router.get('/api/products', function(req, res, next) {
-  Product.find(function(err, products) {
+  db.Product.find(function(err, products) {
     if (err) return next(err);
     res.send(products);
   });
 });
 
 router.get('/api/products/:slug', function(req, res, next) {
-  Product.findOne({'slug' : req.params.slug})
+  db.Product.findOne({'slug' : req.params.slug})
     .exec(function(err, product) {
       if (err) return next(err);
       debug('Found Product: %j', product);
@@ -83,7 +65,7 @@ router.get('/add', function(req, res) {
 router.post('/add', function(req, res, next) {
 
   debug('Adding Product %j', req.body);
-  var product = new Product(req.body);
+  var product = new db.Product(req.body);
   product.save(function (err) {
     if (err) {
       debug('Unable to add the game to database: ', err.stack);
@@ -95,36 +77,12 @@ router.post('/add', function(req, res, next) {
 });
 
 
-
-
-
-
-
-// In Mongoose everything is derived from Schema.
-// Here we create a schema called User with the following fields.
-// Each field requires a type and optional additional properties, e.g. unique field? required field?
-var UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, index: { unique: true }},
-  password: { type: String, required: true },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  joined_on: { type: Date, default: Date.now() },
-  isAdmin: Boolean,
-  purchasedProducts: [{
-    game: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-    date: { type: Date, default: Date.now() }
-  }],
-  viewedProducts: [String],
-  lastLogin: Boolean
-});
-
-
 // Express middleware that hashes a password before it is saved to database
 // The following function is invoked right when we called MongoDB save() method
 // We can define middleware once and it will work everywhere that we use save() to save data to MongoDB
 // The purpose of this middleware is to hash the password before saving to database, because
 // we don't want to save password as plain text for security reasons
-UserSchema.pre('save', function (next) {
+db.UserSchema.pre('save', function (next) {
   'use strict';
   var user = this;
 
@@ -152,19 +110,6 @@ UserSchema.pre('save', function (next) {
   });
 });
 
-// This middleware compares user's typed-in password during login with the password stored in database
-UserSchema.methods.comparePassword = function(candidatePassword, callback) {
-  'use strict';
-  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-    if (err) {
-      return callback(err);
-    }
-    callback(null, isMatch);
-  });
-};
-
-// User model based on schema
-var User = mongoose.model('User', UserSchema);
 
 /**
  * Register Routes
@@ -195,7 +140,7 @@ router.post('/register', function(req, res, next) {
   var email = req.body.userEmail;
   var password = req.body.password;
 
-  var user = new User({
+  var user = new db.User({
     firstName: firstName,
     lastName: lastName,
     email: email,
@@ -238,7 +183,7 @@ router.get('/login', function(req, res) {
  */
 router.post('/login', function (req, res) {
  'use strict';
-  User.findOne({ 'email': req.body.userEmail }, function (err, user) {
+  db.User.findOne({ 'email': req.body.userEmail }, function (err, user) {
     if (err) {
       res.send(500, err);
     }
