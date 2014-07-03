@@ -35,23 +35,6 @@ router.get('/products', function(req, res, next) {
   });
 });
 
-
-router.get('/api/products', function(req, res, next) {
-  db.Product.find(function(err, products) {
-    if (err) return next(err);
-    res.send(products);
-  });
-});
-
-router.get('/api/products/:slug', function(req, res, next) {
-  db.Product.findOne({'slug' : req.params.slug})
-    .exec(function(err, product) {
-      if (err) return next(err);
-      debug('Found Product: %j', product);
-      res.send(product);
-  });
-});
-
 router.get('/add', function(req, res) {
 
   res.render('add', { 
