@@ -36,6 +36,40 @@ var userSchema = new mongoose.Schema({
   lastLogin: Boolean
 });
 
+
+// Express middleware that hashes a password before it is saved to database
+// The following function is invoked right when we called MongoDB save() method
+// We can define middleware once and it will work everywhere that we use save() to save data to MongoDB
+// The purpose of this middleware is to hash the password before saving to database, because
+// we don't want to save password as plain text for security reasons
+userSchema.pre('save', function (next) {
+  'use strict';
+  var user = this;
+
+  // only hash the password if it has been modified (or is new)
+  if (!user.isModified('password')) {
+    return next();
+  }
+
+  // generate a salt with 10 rounds
+  bcrypt.genSalt(10, function (err, salt) {
+    if (err) {
+      return next(err);
+    }
+
+    // hash the password along with our new salt
+    bcrypt.hash(user.password, salt, function(err, hash) {
+      if (err) {
+        return next(err);
+      }
+
+      // override the cleartext password with the hashed one
+      user.password = hash;
+      next();
+    });
+  });
+});
+
 // This middleware compares user's typed-in password during login with the password stored in database
 userSchema.methods.comparePassword = function(candidatePassword, callback) {
   'use strict';
@@ -55,7 +89,5 @@ mongoose.connect('localhost');
 debug("Connected to database.");
 
 
-module.exports.productSchema = productSchema;
-module.exports.UserSchema = userSchema;
 module.exports.Product = Product;
 module.exports.User = User;
