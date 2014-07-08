@@ -36,6 +36,27 @@ router.get('/products', function(req, res, next) {
   });
 });
 
+/**
+ * GET /product/detail
+ *
+ * @return
+ */
+router.get('/products/:detail', function(req, res) {
+  'use strict';
+
+  db.Product.findOne({ 'slug': req.params.detail }, function(err, product) {
+    if (err) {
+      return res.send(500, err);
+    }
+    res.render('details', {
+      heading: product.title,
+      lead: product.catagory,
+      user: req.session.user,
+      product: product
+    });
+  });
+});
+
 router.get('/add', function(req, res) {
 
   res.render('add', { 

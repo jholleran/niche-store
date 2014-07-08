@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  br
+  .hero-unit
+    .row
+      .span2
+        img.img-polaroid(src='/img/products/#{product.image}', id="tooltip-#{product.slug}",rel='tooltip', title='Preview')
+      .span7
+        p
+          strong Catagory:
+          span  #{product.catagory}
+          br
+          strong Price:
+          span  #{product.price}
+          br
+
+          strong Rating:&nbsp;
+
+
+          - ratingAvg = Math.ceil(150/60 * 100) / 100 || 0
+          span(class='stars', id='rating-#{product.slug}', data-rating=ratingAvg, data-user=user.userName, data-voted=voted, data-suspended=suspended, data-star-big='Yes')
+          span  #{ratingAvg} (50 votes)
+
+    small
+      i.icon.icon-star
+      span  Tip: Mouse over the product cover to play a video preview.
+
+  h3 Product Summary
+  div #{product.description}
