@@ -39,8 +39,6 @@ body
         .nav-collapse.collapse
           ul.nav
             li
-              a(href='/') Home
-            li
               a(href='/products') Products
           ul.nav.pull-right
             if (!user.email)
@@ -54,14 +52,12 @@ body
                 li
                   a(href='/admin') Admin Dashboard
               li
-                a(href='/#{user.email}')
+                a(href='/#accunt')
                   img.img-rounded(id='tiny-avatar', src='/img/anonymous_avatar.gif', height='32', width='32')
                   span &nbsp;&nbsp;
                   = user.firstName
                   |&nbsp;
                   = user.lastName
-              li
-                a(href='/account') My Account
               li
                 a(href='/logout') Sign Out
             
