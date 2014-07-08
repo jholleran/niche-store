@@ -29,6 +29,7 @@ router.get('/products', function(req, res, next) {
         title: 'Online Products Store',
         heading: 'IP Cameras',
         lead: 'Product titles listed by popularity rating',
+        user: req.session.user,
         products: products
       });
     }
