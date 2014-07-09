@@ -11,7 +11,8 @@ var productSchema = new mongoose.Schema({
   description: String,
   price: Number,
   image: String,
-  catagory: [String]
+  catagory: [String],
+  rating: { type: Number, default: 0 }
 });    
 
 

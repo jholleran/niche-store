@@ -49,17 +49,22 @@ body
       .control-group
         label.control-label(for='price') Price
         .controls
-          input#price(name='price', type='number')
+          input#price(name='price', type='number', step='any')
 
       .control-group
-        label.control-label(for='thumbnail') Image
+        label.control-label(for='image') Image
         .controls
           input#image(name='image', type='file')
 
       .control-group
-        label.control-label(for='thumbnail') Catagory
+        label.control-label(for='catagory') Catagory
         .controls
           input#catagory(name='catagory', type='text')
+
+      .control-group
+        label.control-label(for='rating') Rating
+        .controls
+          input#rating(name='rating', type='number', step='any')
 
       .control-group
         .controls

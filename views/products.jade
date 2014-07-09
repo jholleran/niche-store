@@ -25,9 +25,9 @@ block content
                     =  product.price
               div
                 // product rating
-                - ratingAvg = Math.ceil(78/40 * 100) / 100 || 0
+                - ratingAvg = Math.ceil(product.rating * 100) / 100 || 0
                 span(class='stars', id='rating-#{product.slug}', data-rating=ratingAvg, data-user=user.userName, data-voted=voted, data-suspended=suspended)
-                span  #{ratingAvg} (40 votes)
+                span  #{ratingAvg}
 
               // product information
               div

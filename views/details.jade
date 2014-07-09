@@ -18,9 +18,9 @@ block content
           strong Rating:&nbsp;
 
 
-          - ratingAvg = Math.ceil(150/60 * 100) / 100 || 0
+          - ratingAvg = Math.ceil(product.rating * 100) / 100 || 0
           span(class='stars', id='rating-#{product.slug}', data-rating=ratingAvg, data-user=user.userName, data-voted=voted, data-suspended=suspended, data-star-big='Yes')
-          span  #{ratingAvg} (50 votes)
+          span  #{ratingAvg}
 
     small
       i.icon.icon-star
