@@ -23,11 +23,16 @@ block content
               button.btn.btn-primary.btn-mini(id='buy-#{product.slug}', data-product-title=product.title, class='buy', role='button', data-toggle='modal')
                     i.icon-shopping-cart.icon-white
                     =  product.price
+              div
+                // product rating
+                - ratingAvg = Math.ceil(78/40 * 100) / 100 || 0
+                span(class='stars', id='rating-#{product.slug}', data-rating=ratingAvg, data-user=user.userName, data-voted=voted, data-suspended=suspended)
+                span  #{ratingAvg} (40 votes)
 
               // product information
               div
                 small.muted
-                  div #{product.genre}
+                  div #{product.catagory}
 
               // product description
               p #{product.description}
