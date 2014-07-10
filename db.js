@@ -86,7 +86,11 @@ userSchema.methods.comparePassword = function(candidatePassword, callback) {
 var User = mongoose.model('User', userSchema);
 
 debug("Connecting to database...");
-mongoose.connect('localhost');
+//mongoose.connect('localhost');
+
+mongoose.connect('mongodb://holleranj:password@ds045948.mongolab.com:45948/niche-store', function (err) {
+  debug("Unable to connect to database.", err);
+});
 debug("Connected to database.");
 
 
