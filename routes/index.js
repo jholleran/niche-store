@@ -57,7 +57,19 @@ router.get('/products/:detail', function(req, res) {
   });
 });
 
-router.get('/add', function(req, res) {
+/**
+ * Only allows the route to be accessed if the user is an admin.
+ */
+function requireAdmin(req, res, next) {
+  if (!req.session.user || !req.session.user.isAdmin) {
+    debug('Permission denied: %j', req.session.user);
+    return next(new Error("Permission denied."));
+  }
+
+  next();
+}
+
+router.get('/add', requireAdmin, function(req, res) {
 
   res.render('add', { 
   	title: 'Add Product to Store',
@@ -66,7 +78,7 @@ router.get('/add', function(req, res) {
   });
 });
 
-router.post('/add', function(req, res, next) {
+router.post('/add', requireAdmin, function(req, res, next) {
 
   debug('Adding Product %j', req.body);
   var product = new db.Product(req.body);
